@@ -15,8 +15,26 @@ class CustomImageDataset(Dataset):
         class_names = os.walk(self.data_set_path).__next__()[1]
 
         for index, class_name in enumerate(class_names):
+            # 0 - balancing
+            # 1 - inverted
+            # 2 - reclining
+            # 3 - sitting
+            # 4 - standing
+            # 5 - wheel
 
-            label = index
+            # label = index
+            if class_name == "balancing":
+                label = 0
+            elif class_name == "inverted":
+                label = 1
+            elif class_name == "reclining":
+                label = 2
+            elif class_name == "sitting":
+                label = 3
+            elif class_name == "standing":
+                label = 4
+            elif class_name == "wheel":
+                label = 5
             img_dir = os.path.join(self.data_set_path, class_name)
             # print(img_dir, label)
             img_files = os.walk(img_dir).__next__()[2]
