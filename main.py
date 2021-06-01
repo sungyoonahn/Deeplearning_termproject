@@ -76,9 +76,8 @@ if __name__ == "__main__":
         val_accuracy.append(val_epoch_acc)
 
         # Plot Acc and Loss for Train and Val Results
-        plot(train_accuracy, val_accuracy, train_loss, val_loss, save_path, name = None)
+        plot(train_accuracy, val_accuracy, train_loss, val_loss, save_path, name)
 
-        # Saves Each Epoch Results (EPOCH IS SAVED IN .pth NAME)
         if val_epoch_loss < best_losses:
             best_losses = val_epoch_loss
             torch.save(model.state_dict(), save_path+
