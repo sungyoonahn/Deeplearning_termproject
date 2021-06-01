@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Data Path
     data_path = "config_data"
     # Output Path
-    save_path = "outputs"
+    save_path = "aug_outputs"
 
     # Hyper Parameters
     epoch =100
@@ -49,10 +49,14 @@ if __name__ == "__main__":
 
     # Model (resnet18)
     num_classes = train_data_set.num_classes
-    resnet = models.resnet18(pretrained=True)
-    resnet.fc = nn.Linear(512, num_classes)
+    # resnet = models.resnet18(pretrained=True)
+    # resnet.fc = nn.Linear(512, num_classes)
+
+    densenet = models.densenet121(pretrained=True)
+    densenet.classifier = nn.Linear(1024, num_classes)
     # Load Model
-    model = resnet.to(device)
+    model = densenet.to(device)
+    # model.load_state_dict(torch.load("resnet_0.20697.pth"))
 
     # optimizer, loss function
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)

@@ -13,7 +13,7 @@ from dataload import CustomImageDataset,TestImageDataset
 # 4 - standing
 # 5 - wheel
 
-PATH="AdamW_epoch_1.pth"
+PATH="model-epoch-1-losses-0.26881.pth"
 
 if __name__ == "__main__":
     # Load device
@@ -33,10 +33,13 @@ if __name__ == "__main__":
 
 
     # Model (resnet18)
-    resnet = models.resnet18(pretrained=True)
-    resnet.fc = nn.Linear(512, 6)
-    # Load Model
-    model = resnet.to(device)
+    # resnet = models.resnet18(pretrained=True)
+    # resnet.fc = nn.Linear(512, 6)
+    # model = resnet.to(device)
+
+    densenet = models.densenet121(pretrained=True)
+    densenet.classifier = nn.Linear(1024, 6)
+    model = densenet.to(device)
 
     model.load_state_dict(torch.load(PATH))
 
@@ -64,20 +67,20 @@ if __name__ == "__main__":
 
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
-            if str(predicted.item()) == "0":
-                temp = 1
-            elif str(predicted.item()) == "1":
-                temp = 2
-            elif str(predicted.item()) == "2":
-                temp = 4
-            elif str(predicted.item()) == "1":
-                temp = 2
-            elif str(predicted.item()) == "4":
-                temp = 5
-            elif str(predicted.item()) == "5":
-                temp = 0
+            # if str(predicted.item()) == "0":
+            #     temp = 5
+            # elif str(predicted.item()) == "1":
+            #     temp = 2
+            # elif str(predicted.item()) == "2":
+            #     temp = 0
+            # elif str(predicted.item()) == "1":
+            #     temp = 1
+            # elif str(predicted.item()) == "4":
+            #     temp = 3
+            # elif str(predicted.item()) == "5":
+            #     temp = 4
 
-            preds.append(temp)
+            preds.append(predicted.item())
             img_ids.append(index[0].split(".")[0])
 
         for i in range(600):
