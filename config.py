@@ -27,10 +27,9 @@ if __name__ == "__main__":
     save_path = "outputs"
 
     # Hyper Parameters
-    epoch = 3
+    epoch = 5
     batch_size = 2
-    learning_rate = [0.1, 0.01, 0.001, 0.0001]
-
+    learning_rate = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
 
     # Data Transform
     transforms_train = transforms.Compose([transforms.Resize((256, 256)),
@@ -54,38 +53,37 @@ if __name__ == "__main__":
     num_classes = train_data_set.num_classes
     resnet = models.resnet18(pretrained=True)
     resnet.fc = nn.Linear(512, num_classes)
-    # Load Model
-
-    # optimizer, loss function
-
 
     # Training Model
     best_loss = 100
+    train_loss, train_accuracy = [], []
+    val_loss, val_accuracy = [], []
+    model = resnet.to(device)
 
-    for lr in learning_rate:
-        for lf in range(3):
-            for i in range(4):
-                model = resnet.to(device)
+    for lf in range(3):
+        for i in range(4):
+            for lr in learning_rate:
+
                 criterion, loss_function_name = test_loss(lf, model)
-                optimizer, name = test_optim(i, model, lr)  # Optimizer : AdamW
-                train_loss, train_accuracy = [], []
-                val_loss, val_accuracy = [], []
+                optimizer, name = test_optim(i, model, lr)
 
                 for e in range(epoch):
                     # Train, Val
                     print(optimizer, lr, criterion)
                     train_epoch_loss, train_epoch_acc = train(model, train_loader, optimizer, criterion, e)
                     val_epoch_loss, val_epoch_acc = eval(model, test_loader, criterion)
-                    train_loss.append(train_epoch_loss)
-                    train_accuracy.append(train_epoch_acc)
-                    val_loss.append(val_epoch_loss)
-                    val_accuracy.append(val_epoch_acc)
 
                     if val_epoch_loss < best_loss:
                         best_loss = val_epoch_loss
                         torch.save(model.state_dict(), save_path + '/best_weights.pth'.format(e))
 
                     torch.save(model.state_dict(), save_path + '/' + name + '_'+str(lr)
-                               +'_'+loss_function_name+'_{:.3f}_{:.3f}_epoch_{}.pth'.format(val_epoch_loss, val_epoch_acc,e))
+                               +'_'+loss_function_name +
+                               '_{:.3f}_{:.3f}_epoch_{}.pth'.format(val_epoch_loss, val_epoch_acc, e))
 
-                plot(train_accuracy, val_accuracy, train_loss, val_loss, save_path, name)
+                train_loss, train_accuracy = [], []
+                val_loss, val_accuracy = [], []
+
+                for layer in model.children():
+                    if hasattr(layer, 'reset_parameters'):
+                        layer.reset_parameters()
