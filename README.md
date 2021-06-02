@@ -28,10 +28,10 @@ opencv-python
  * this will get images from your image path and save weights along with the plot. Weight names have information of the lr, optimization function, loss function used with the results from the validation data.
 ### - part2
 1. models used
-Densenet102 - best acc 0.89 \n
-Densenet201 - training
+- Densenet102 -> best acc 0.89
+- Densenet201 -> training
 2. how to run the code
-####About the code
+#### About the code
 - data_aug.py contains codes for augmenting the data.
 - main.py contains codes for running the model.
 - save_csv.py contains codes for saving the results of the test data to a csv file.
