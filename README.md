@@ -8,6 +8,7 @@ Pytorch for cuda 10.2
 matlab
 numpy
 opencv-python
+efficient-net
 * install latest versions for matlab, numpy and opencv-python
 ### - part1
 1. tuner
@@ -36,4 +37,9 @@ opencv-python
 - main.py contains codes for running the model.
 - save_csv.py contains codes for saving the results of the test data to a csv file.
 #### How to run the code
-1. python main.py
+- if you want to augment your own data
+-- python aug_data.py (this will augment and save your data in the orignial datafile)
+- to run training sequence
+-- python main.py
+- to see accuracy results on the validation dataset
+-- python test_data.py
