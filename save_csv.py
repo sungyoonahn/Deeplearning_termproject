@@ -4,16 +4,11 @@ from torch.utils.data import Dataset, DataLoader
 from torch import nn
 from torchvision import transforms
 import torchvision.models as models
-
+from efficientnet_pytorch import EfficientNet
 from dataload import CustomImageDataset,TestImageDataset
-# 0 - balancing
-# 1 - inverted
-# 2 - reclining
-# 3 - sitting
-# 4 - standing
-# 5 - wheel
 
-PATH="model-epoch-1-losses-0.26881.pth"
+# Path for weight file
+PATH="b1-epoch-1-losses-0.02275.pth"
 
 if __name__ == "__main__":
     # Load device
@@ -23,28 +18,37 @@ if __name__ == "__main__":
     # Paths
     # Data Path
     data_path = "config_data"
-    # Output Path
-    save_path = "outputs"
-    criterion = nn.CrossEntropyLoss()
-    # Data Transform
 
     transforms_test = transforms.Compose([transforms.Resize((256, 256)),
                                           transforms.ToTensor()])
 
 
-    # Model (resnet18)
-    # resnet = models.resnet18(pretrained=True)
-    # resnet.fc = nn.Linear(512, 6)
-    # model = resnet.to(device)
+    # densenet201
+    # densenet = models.densenet201(pretrained=True)
+    # densenet.classifier = nn.Linear(1920, 6)
+    # model = densenet.to(device)
 
-    densenet = models.densenet121(pretrained=True)
-    densenet.classifier = nn.Linear(1024, 6)
-    model = densenet.to(device)
+    # Densenet121
+    # densenet = models.densenet121(pretrained=True)
+    # densenet.classifier = nn.Linear(1024, 6)
+    # model = densenet.to(device)
 
+    # efficientnet
+    model = EfficientNet.from_pretrained('efficientnet-b1')
+    model._fc = nn.Linear(in_features=1280, out_features=6)
+    model = model.to(device)
+
+    # resnet152
+    # resnet152 = models.resnet152(pretrained=True)
+    # resnet152.fc = nn.Linear(2048, 6)
+    # model = resnet152.to(device)
+
+    # load model weights
     model.load_state_dict(torch.load(PATH))
 
     model.eval()
 
+    # open and write csv file
     f = open("./prediction.csv","w", newline = '')
     w = csv.writer(f)
     w.writerow(["id", "target"])
@@ -55,11 +59,11 @@ if __name__ == "__main__":
     test_data_set = TestImageDataset(image_dir=data_path + "/test", transforms=transforms_test, test = True)
     test_loader = DataLoader(test_data_set, batch_size=1, shuffle=False)
 
-
     preds = []
     img_ids = []
     model.eval()
     temp = 0
+    # write predictions to csv file
     with torch.no_grad():
         for item in test_loader:
             images = item['image'].to(device)
@@ -67,19 +71,6 @@ if __name__ == "__main__":
 
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
-            # if str(predicted.item()) == "0":
-            #     temp = 5
-            # elif str(predicted.item()) == "1":
-            #     temp = 2
-            # elif str(predicted.item()) == "2":
-            #     temp = 0
-            # elif str(predicted.item()) == "1":
-            #     temp = 1
-            # elif str(predicted.item()) == "4":
-            #     temp = 3
-            # elif str(predicted.item()) == "5":
-            #     temp = 4
-
             preds.append(predicted.item())
             img_ids.append(index[0].split(".")[0])
 

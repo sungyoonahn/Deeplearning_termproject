@@ -4,6 +4,7 @@ from torch import nn
 from torchvision import transforms
 import torchvision.models as models
 
+from efficientnet_pytorch import EfficientNet
 from dataload import CustomImageDataset
 from train import train, eval
 from utils import plot
@@ -19,15 +20,17 @@ if __name__ == "__main__":
     print(device)
 
     # Paths
-    # Data Path
-    data_path = "config_data"
+    # Path for step1 "config_data"
+    # Path for step2 "aug_data"
+    # input data Path
+    data_path = "aug_data"
     # Output Path
     save_path = "aug_outputs"
 
     # Hyper Parameters
     epoch =100
-    batch_size = 2
-    learning_rate = 1e-4
+    batch_size = 8
+    learning_rate = 2e-5
 
     # Data Transform
     transforms_train = transforms.Compose([transforms.Resize((256, 256)),
@@ -47,19 +50,40 @@ if __name__ == "__main__":
         print("error: Numbers of class in training set and test set are not equal")
         exit()
 
-    # Model (resnet18)
     num_classes = train_data_set.num_classes
-    # resnet = models.resnet18(pretrained=True)
-    # resnet.fc = nn.Linear(512, num_classes)
 
-    densenet = models.densenet121(pretrained=True)
-    densenet.classifier = nn.Linear(1024, num_classes)
-    # Load Model
-    model = densenet.to(device)
-    # model.load_state_dict(torch.load("resnet_0.20697.pth"))
+    # Resnet152
+    # resnet152 = models.resnet152(pretrained=True)
+    # resnet152.fc = nn.Linear(2048, num_classes)
+    # model = resnet152.to(device)
+    # model.load_state_dict(torch.load(""))
+
+    # Densenet121
+    # densenet = models.densenet121(pretrained=True)
+    # densenet.classifier = nn.Linear(1024, num_classes)
+    # model = densenet.to(device)
+    # model.load_state_dict(torch.load(""))
+
+    # Densenet201
+    # densenet = models.densenet201(pretrained=True)
+    # densenet.classifier = nn.Linear(1920, num_classes)
+    # model = densenet.to(device)
+    # model.load_state_dict(torch.load(""))
+
+    # Effcientnet-b0
+    # model = EfficientNet.from_pretrained('efficientnet-b0')
+    # model._fc = nn.Linear(in_features = 1280, out_features=num_classes)
+    # model = model.to(device)
+    # model.load_state_dict(torch.load(""))
+
+    # Effcientnet-b1
+    model = EfficientNet.from_pretrained('efficientnet-b1')
+    model._fc = nn.Linear(in_features = 1280, out_features=num_classes)
+    model = model.to(device)
+    # model.load_state_dict(torch.load("b"))
 
     # optimizer, loss function
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     # Training Model
@@ -67,7 +91,7 @@ if __name__ == "__main__":
     val_loss , val_accuracy = [], []
 
     best_losses = 1e10
-    name = "AdamW"
+    name = "Adam"
 
     for e in range(epoch):
         # Train, Val
@@ -85,4 +109,4 @@ if __name__ == "__main__":
         if val_epoch_loss < best_losses:
             best_losses = val_epoch_loss
             torch.save(model.state_dict(), save_path+
-                       '/model-epoch-{}-losses-{:.5f}.pth'.format(e + 1, val_epoch_loss))
+                       '/epoch-{}-losses-{:.5f}.pth'.format(e + 1, val_epoch_loss))
